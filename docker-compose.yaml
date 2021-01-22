@@ -1,0 +1,41 @@
+version: "3"
+
+services: 
+  app:
+    build:
+      context: ./App
+    container_name: wevo_application
+    image: arthurdonizetti/wevo_application
+    entrypoint: dockerize -wait tcp://db:${MYSQL_PORT} -timeout 20s bash
+    env_file:
+      - .env
+    volumes: 
+      - ./App:/usr/src/app
+    tty: true
+    networks: 
+      - wevo-network
+    depends_on:
+      - db
+
+  db:
+    build:
+      context: ./mysql
+    container_name: wevo_database
+    image: arthurdonizetti/wevo_database
+    command: --innodb-use-native-aio=0
+    restart: always
+    tty: true
+    ports:
+    - "3306:3306"
+    volumes:
+      - ./data:/usr/lib/mysql
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+    networks:
+      - wevo-network
+
+networks:
+  wevo-network:
+    driver: bridge

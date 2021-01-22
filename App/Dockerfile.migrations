@@ -1,0 +1,6 @@
+
+
+
+RUN cd ./Infra \
+  && dotnet ef database update --context FileStorageContext \
+  && dotnet ef database update --context ApiContext
